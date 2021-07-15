@@ -1,0 +1,44 @@
+#!markdown
+
+# Introductions
+
+## Jeff
+1) Works for Wells Fargo Bank
+1) IT Professional for 15 years
+1) Home Automation Enthusiist 
+
+## Adrian
+1) Works for Wells Fargo Bank
+1) IT Professional for 10 years
+1) Dog Breeder
+
+#!markdown
+
+# Overview
+
+1) Performance tricks
+    1) Parralelism 
+    1) Lists 
+    1) HashTables
+    1) Return Only 
+    1) Reduce Network logs
+    1) Filter left
+    1) Error Actions
+    1) Consider .NET
+
+<br/>
+
+1) Debugging
+    1) Why use debugging VS interactive session?
+    1) Local debugging
+    1) Remote debugging
+
+<br/>
+
+1) Security tools
+    1) Common Mistakes
+    1) Secrets
+
+<br/>
+
+1) Q&A

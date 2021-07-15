@@ -16,46 +16,47 @@
 
 #!pwsh
 
-[Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent
+[Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent("Test'string")
+[Management.Automation.Language.CodeGeneration]::EscapeBlockCommentContent("Test#>string")
 
 #!pwsh
 
 $username = 'Administrator'
 $Password = 'P@ssw0rd'
-E:\ITStuff\Utilities\SysInternals\PSExec.exe -u $username -p $Password cmd /k 
+Powershell.exe -command " Invoke-Command {([void]('$username : $Password'))};Start-sleep -Seconds 15 " 
 
 #!pwsh
-
-# Plain Text passwords
-GPEdit
-# GPEDIT Computersystem/Administrative templates/Windows Componants/windows Powershell
 
 $username = 'Administrator'
 $Password = 'P@ssw0rd'
 $Cred = [PScredential]::new($username, (ConvertTo-SecureString -String $Password -AsPlainText -Force))
-Get-WinEvent -LogName Microsoft-Windows-PowerShell/Operational -MaxEvents 10 
-Get-WinEvent -LogName 'Windows PowerShell' -MaxEvents 20 
+Get-WinEvent -LogName Microsoft-Windows-PowerShell/Operational -MaxEvents 20 | where {$PSItem.message -like '*P@ss*'}   
+Get-WinEvent -LogName 'Windows PowerShell' -MaxEvents 20 | where {$PSItem.message -like '*P@ss*'}   
 
-[void][PSCustomObject]@{
-Server = "localhost"
-username = $Username
-PWd =  $cred.GetNetworkCredential().password}
-
-
-
-EventVwr.msc
-
+#EventVwr.msc
 # 800
 
 #!markdown
 
 ## Secrets management platform
  1) https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/?view=ps-modules
+ 2) Not a lot of options yet
 
+#!pwsh
+
+# Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser -force
+# Register-SecretVault -Name LocalStore -ModuleName Microsoft.PowerShell.SecretStore  -DefaultVault
+# Reset-SecretStore
+$Password = 'P@ssw0rd'
+Set-Secret -Name TestUser -Secret $Password
+$Secret = Get-Secret -Name Testuser
+[System.Runtime.InteropServices.marshal]::PtrToStringAuto([System.Runtime.InteropServices.marshal]::SecureStringToBSTR($Secret))
+
+#!markdown
 
 ## GO it alone Secrets
-    1) There are a lot of tools to secure your passwords, tokens and other secrets. 
-    1) Security is a time track but that does not mean you can do nothing to secure secrets.
+    1) There are a lot of tricks to secure your passwords, tokens and other secrets. 
+    1) Security is never perfect but that does not mean you can do nothing to secure secrets.
     1) Separating secrets like usernames from passwords is a good idea. 
     1) https://github.com/PowerShell/SecretManagement/tree/master/ExtensionModules
 
@@ -66,20 +67,10 @@ EventVwr.msc
         1) Computer Keys: %windir%\system32\microsoft\protect
     1) DPAPI is easy to use. 
         1) Browser secrets
-        1) Certificates
         1) Biometrics data
         1) Credential Manager
+    1) Breaks the secret into two peices: The encrypted payload and the user's password
     1) Anyone can decrypt with the user's context
-
-#!pwsh
-
-#Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser -force
-#Register-SecretVault -Name LocalStore -ModuleName Microsoft.PowerShell.SecretStore  -DefaultVault
-$username = 'Administrator'
-$Password = 'P@ssw0rd'
-$Cred = [PScredential]::new($username, (ConvertTo-SecureString -String $Password -AsPlainText -Force))
-Set-Secret -Name TestUser -Secret $cred
-Get-Secret -Name Testuser
 
 #!pwsh
 
@@ -94,15 +85,19 @@ $SecureString
 # Decoding DPAPI
 
 $securestring = ConvertTo-SecureString -String $SecureString
-[System.Runtime.InteropServices.marshal]::PtrToStringAuto([System.Runtime.InteropServices.marshal]::SecureStringToBSTR($securestring))
+$Cred = [PSCredential]::New('User',$SecureString)
+$Cred
+$Cred.GetNetworkCredential().password
 
 #!markdown
 
-### Sympetric Encryption
+### Symmetric Encryption
+1) You pass in the Key used to encrypt and decrypt the secret.
+1) Breaks the secret into two pieces: The encrypted payload and the key 
 
 #!pwsh
 
-# Encoding Symtric 
+# Encoding symmetric  
 
 $Userinput = 'someParam2Secure'
 $keybytes = [System.Text.Encoding]::UTF8.GetBytes($Userinput)
@@ -113,10 +108,18 @@ ConvertFrom-SecureString -SecureString $secure -Key $key
 
 #!pwsh
 
-# Decoding Semetric
+# Decoding symmetric
 $securestring = ConvertTo-SecureString -Key $key -String '76492d1116743f0423413b16050a5345MgB8AEcAaABEAE4AZgAyAG0ASgBJADgAMABoAGwASQBIACsAMQBRAGMAbQBmAGcAPQA9AHwAZQAwADEAZgAzADcAOQBlADkAOAAyAGYAOQAzAGQAOQBhAGMAZQBiAGUANgBlAGEAYQA3ADgANAAzADUAYQAxAGMAMQBhAGIAYQA2ADYAYgAyADkANABjAGYAZQBkAGYAZQAyADUAMQBmADcAZAAwAGQAMgA3ADIANgBmADMANgA='
 [System.Runtime.InteropServices.marshal]::PtrToStringAuto([System.Runtime.InteropServices.marshal]::SecureStringToBSTR($securestring))
 
 #!markdown
 
 ## Code Signing 
+
+1) Code signing effectively pervent script changes on your scripts.
+1) Not all tools supports scripts being signed.
+1) Needs to be partnered with policy to enforce execution policy.
+
+#!markdown
+
+$authenticode = New-SelfSignedCertificate -Subject "CustomSigning" -CertStoreLocation Cert:\CurrentUser\my -Type CodeSigningCert
