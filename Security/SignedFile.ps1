@@ -1,0 +1,1 @@
+Write-output -InputObject 'Test'

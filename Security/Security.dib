@@ -10,14 +10,23 @@
     1) Invoke-Experssion
     1) injection hunter module (https://devblogs.microsoft.com/powershell/powershell-injection-hunter-security-auditing-for-powershell-scripts/)
     1) Management.Automation.Language.CodeGeneration - Methods to escape common injection attacks
-1) Beware of Over-The-Shoulder Logging
-    1) Event log tracks your scripts (Protected Event logging)
-    1) Command lines can be seen in Task Manager
+
+#!pwsh
+
+Add-Type -AssemblyName System.Windows.Forms
+$FileBrowser = New-Object System.Windows.Forms.OpenFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $FileBrowser.ShowDialog()
 
 #!pwsh
 
 [Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent("Test'string")
 [Management.Automation.Language.CodeGeneration]::EscapeBlockCommentContent("Test#>string")
+
+#!markdown
+
+1) Beware of Over-The-Shoulder Logging
+    1) Event log tracks your scripts (Protected Event logging)
+    1) Command lines can be seen in Task Manager
 
 #!pwsh
 
@@ -50,7 +59,6 @@ Get-WinEvent -LogName 'Windows PowerShell' -MaxEvents 20 | where {$PSItem.messag
 $Password = 'P@ssw0rd'
 Set-Secret -Name TestUser -Secret $Password
 $Secret = Get-Secret -Name Testuser
-[System.Runtime.InteropServices.marshal]::PtrToStringAuto([System.Runtime.InteropServices.marshal]::SecureStringToBSTR($Secret))
 
 #!markdown
 
@@ -58,7 +66,6 @@ $Secret = Get-Secret -Name Testuser
     1) There are a lot of tricks to secure your passwords, tokens and other secrets. 
     1) Security is never perfect but that does not mean you can do nothing to secure secrets.
     1) Separating secrets like usernames from passwords is a good idea. 
-    1) https://github.com/PowerShell/SecretManagement/tree/master/ExtensionModules
 
 
 ### DPAPI
@@ -83,8 +90,8 @@ $SecureString
 #!pwsh
 
 # Decoding DPAPI
-
-$securestring = ConvertTo-SecureString -String $SecureString
+$payload = '01000000d08c9ddf0115d1118c7a00c04fc297eb0100000078918e51cd213d4aaa7bc9d791ff0e3100000000020000000000106600000001000020000000f5f8d6405a46bbe537e196b51c21ba321b44e6d235ac5486cfb9998c375c67ab000000000e800000000200002000000042d050329106d2041c6fa61bfb82f86944dd663b4f77d7da8e5612af51f06ddb20000000e9f4e9ee2ebf5e27c18fd3f09932afaabcfb505e86522c133c3a3e233edbc021400000009a6bbb0f7f91faa242448831cadb4cf7cf68189c5b4e99a3da93c228f5bbd3858373535b38ccd6de659231a6daf28ce657617fa6dbdced536126532444d1c7ae'
+$securestring = ConvertTo-SecureString -String $payload
 $Cred = [PSCredential]::New('User',$SecureString)
 $Cred
 $Cred.GetNetworkCredential().password
@@ -99,17 +106,18 @@ $Cred.GetNetworkCredential().password
 
 # Encoding symmetric  
 
-$Userinput = 'someParam2Secure'
-$keybytes = [System.Text.Encoding]::UTF8.GetBytes($Userinput)
+$KeyString = 'someParam2Secure'
+$keybytes = [System.Text.Encoding]::UTF8.GetBytes($KeyString)
 [Byte[]] $Key = [System.Security.Cryptography.HashAlgorithm]::Create('SHA256').ComputeHash($keybytes)
 
-$secure = ConvertTo-SecureString -String 'Password123' -AsPlainText -Force 
+$secure = ConvertTo-SecureString -String 'Password1234' -AsPlainText -Force 
 ConvertFrom-SecureString -SecureString $secure -Key $key
 
 #!pwsh
 
 # Decoding symmetric
-$securestring = ConvertTo-SecureString -Key $key -String '76492d1116743f0423413b16050a5345MgB8AEcAaABEAE4AZgAyAG0ASgBJADgAMABoAGwASQBIACsAMQBRAGMAbQBmAGcAPQA9AHwAZQAwADEAZgAzADcAOQBlADkAOAAyAGYAOQAzAGQAOQBhAGMAZQBiAGUANgBlAGEAYQA3ADgANAAzADUAYQAxAGMAMQBhAGIAYQA2ADYAYgAyADkANABjAGYAZQBkAGYAZQAyADUAMQBmADcAZAAwAGQAMgA3ADIANgBmADMANgA='
+$Payload = '76492d1116743f0423413b16050a5345MgB8AGQAMABSAEcASgBXAG0AbQBnAFEAdQB1AEoAegArAFcAagB2AFMAWABIAEEAPQA9AHwAZAA3ADQAYwBmADkAZQBkAGUAYQAxAGQAYwBkAGMAZQA4ADQAOQA5ADUAOAA4AGQANAAxAGIANAA3ADcANgAwAGIAYwBiAGYAYQAxAGYANgA4AGYAZAA2ADgAMQA4ADIAMABkADAAYgAwADUAOQBjADkANQBjADcAYgAyADUAOAA='
+$securestring = ConvertTo-SecureString -Key $key -String $Payload
 [System.Runtime.InteropServices.marshal]::PtrToStringAuto([System.Runtime.InteropServices.marshal]::SecureStringToBSTR($securestring))
 
 #!markdown

@@ -4,6 +4,9 @@
 
 ## Obvious Stuff
 - Measure-Command is your friend!
+- Searching for alternative tooling and methods can reveal more performant solutions.
+- The principles below are more effective at scale.
+- Always keep in mind your development time and supportability.
 
 ## Parallelism
 ### ForEach vs ForEach-Object vs ForEach()
@@ -55,7 +58,7 @@ $ComputerNames = 'PC0001','PC0002','PC0003','PC0004','PC0005','PC0006'
 
 # Do this:
 
-Invoke-Command -ComputerName $ComputerNames -ScriptBlock {'Arbitrary code here.'}
+Invoke-Command -ComputerName $ComputerNames -ScriptBlock {'Arbitrary code here.'} # -ThrottleLimit If too many systems 
 
 # Not this:
 
@@ -247,15 +250,15 @@ Select-Object -ExpandProperty TotalMilliseconds
 
 $ErrorActionSilentlyContinue = Measure-Command -Expression {
     Foreach($i in @(1..1E3)){
-        Remove-Item -Path $env:USERPROFILE\$Item -ErrorAction SilentlyContinue -Confirm:$False
+        Remove-Item -Path $env:USERPROFILE\$i -ErrorAction SilentlyContinue -Confirm:$False
     }
 } | 
 Select-Object -ExpandProperty TotalMilliseconds
 
 $CheckFirst = Measure-Command -Expression {
     Foreach($i in @(1..1E3)){
-        If([System.IO.File]::Exists("$env:USERPROFILE\$Item")){
-            Remove-Item -Path $env:USERPROFILE\$Item -Confirm:$False
+        If([System.IO.File]::Exists("$env:USERPROFILE\$i")){
+            Remove-Item -Path $env:USERPROFILE\$i -Confirm:$False
         }
     }
 } | 

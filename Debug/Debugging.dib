@@ -9,20 +9,23 @@
 #!pwsh
 
 # Gathering Data From 
-Set-Location E:\Repos\MMS\EnterprisePosh\Debug
-$FilePath = "E:\RunSpaceData.txt"
-Import-Module .\Module.psm1
+{
+    Set-Location E:\Repos\MMS\EnterprisePosh\Debug
+    $FilePath = "E:\RunSpaceData.txt"
+    Import-Module .\Module.psm1
 
-$Loops = 10
-$BreakPoint = 3
- 
-:LoopName For ($Counter = 0; $Counter -LT $loops; $Counter++){
-    If ($Counter = $BreakPoint){
-        Break LoopName
+    $Loops = 10
+    $BreakPoint = 3
+    
+    wait-debugger
+    :LoopName For ($Counter = 0; $Counter -LT $loops; $Counter++){
+        If ($Counter -eq $BreakPoint){
+            Break LoopName
+        }
+        "Sleeping $Counter"
+        Start-UDFSleep
     }
-    "Sleeping $Counter"
-    Start-UDFSleep
-}
+}.invoke()
 
 #!markdown
 
@@ -33,6 +36,7 @@ $BreakPoint = 3
 #!pwsh
 
 # Gathering Data From 
+# E:\Repos\Utilities\SysInternals\PSEXEC.exe -s -i cmd
 Set-Location E:\Repos\MMS\EnterprisePosh\Debug
 $FilePath = "E:\RunSpaceData.txt"
 Import-Module .\Module.psm1
@@ -45,7 +49,29 @@ $RunSpaceData = @{
 Out-File -FilePath $FilePath -InputObject (Convertto-json $RunSpaceData)
 
 #Wait
-# Wait-Debugger for local
+
+$Seconds = 300
+For ($Counter = 0; $Counter -lt $Seconds; $Counter++){
+    Start-UDFSleep 
+}
+
+#!pwsh
+
+# Gathering Data From 
+# E:\Repos\Utilities\SysInternals\PSEXEC.exe -s -i cmd
+Set-Location E:\Repos\MMS\EnterprisePosh\Debug
+$FilePath = "E:\RunSpaceData.txt"
+Import-Module .\Module.psm1
+
+$RunSpaceData = @{
+    Computername = $ENV:COMPUTERNAME
+    PID = $PID
+    RunSpace = $Host.Runspace.ID
+}
+Out-File -FilePath $FilePath -InputObject (Convertto-json $RunSpaceData)
+
+#Wait
+
 $Seconds = 300
 For ($Counter = 0; $Counter -lt $Seconds; $Counter++){
     Start-UDFSleep 
@@ -69,13 +95,13 @@ $RunSpaceData = ConvertFrom-Json -InputObject $content
 If ($RunSpaceData.ComputerName -NE $ENV:COMPUTERNAME){
     $PSSession = Enter-PSSession -ComputerName $RunSpaceData.ComputerName
     Invoke-Command -ScriptBlock {Enter-PSHostProcess -ID $args} -ArgumentList $RunSpaceData.PID -Session $PSSession
-    "Debug-Runspace -id $($RunSpaceData.RunSpace)"
+    "Debug-Runspace -id $($RunSpaceData.RunSpace)"|clip
 }Else{
     $RunSpaceData
     Enter-PSHostProcess -ID $RunSpaceData.PID
     #get-Runspace
     #Get-RunspaceDebug
-    Debug-Runspace -ID $RunSpaceData.RunSpace
+    "Debug-Runspace -ID $($RunSpaceData.RunSpace)"|clip
 }
 
 # ? or h for help
