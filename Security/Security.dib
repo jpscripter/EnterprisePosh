@@ -50,11 +50,14 @@ EventVwr.msc
 #!markdown
 
 ## Secrets management platform
+ 1) https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/?view=ps-modules
+
 
 ## GO it alone Secrets
     1) There are a lot of tools to secure your passwords, tokens and other secrets. 
     1) Security is a time track but that does not mean you can do nothing to secure secrets.
     1) Separating secrets like usernames from passwords is a good idea. 
+    1) https://github.com/PowerShell/SecretManagement/tree/master/ExtensionModules
 
 
 ### DPAPI
@@ -67,6 +70,16 @@ EventVwr.msc
         1) Biometrics data
         1) Credential Manager
     1) Anyone can decrypt with the user's context
+
+#!pwsh
+
+#Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser -force
+#Register-SecretVault -Name LocalStore -ModuleName Microsoft.PowerShell.SecretStore  -DefaultVault
+$username = 'Administrator'
+$Password = 'P@ssw0rd'
+$Cred = [PScredential]::new($username, (ConvertTo-SecureString -String $Password -AsPlainText -Force))
+Set-Secret -Name TestUser -Secret $cred
+Get-Secret -Name Testuser
 
 #!pwsh
 
