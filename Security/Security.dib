@@ -5,11 +5,18 @@
 ## Obvious Stuff
 1) Lock down permissions to your solutions
     1) Having poor permissioning on your scripts can lead to edits and secrets being leaked.
-1) Do not use Invoke-Experssion
+1) Be careful code injection
     1) Be careful with user input in general
+    1) Invoke-Experssion
+    1) injection hunter module (https://devblogs.microsoft.com/powershell/powershell-injection-hunter-security-auditing-for-powershell-scripts/)
+    1) Management.Automation.Language.CodeGeneration - Methods to escape common injection attacks
 1) Beware of Over-The-Shoulder Logging
-    1) Event log tracks your scripts
+    1) Event log tracks your scripts (Protected Event logging)
     1) Command lines can be seen in Task Manager
+
+#!pwsh
+
+[Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent
 
 #!pwsh
 
@@ -17,8 +24,7 @@ $username = 'Administrator'
 $Password = 'P@ssw0rd'
 E:\ITStuff\Utilities\SysInternals\PSExec.exe -u $username -p $Password cmd /k 
 
-
-
+#!pwsh
 
 # Plain Text passwords
 GPEdit
@@ -43,10 +49,13 @@ EventVwr.msc
 
 #!markdown
 
-## Secrets
+## Secrets management platform
+
+## GO it alone Secrets
     1) There are a lot of tools to secure your passwords, tokens and other secrets. 
     1) Security is a time track but that does not mean you can do nothing to secure secrets.
     1) Separating secrets like usernames from passwords is a good idea. 
+
 
 ### DPAPI
     1) Data Protection API is a good solution for some solutions based on AES encryption and built into windows. 
@@ -94,3 +103,7 @@ ConvertFrom-SecureString -SecureString $secure -Key $key
 # Decoding Semetric
 $securestring = ConvertTo-SecureString -Key $key -String '76492d1116743f0423413b16050a5345MgB8AEcAaABEAE4AZgAyAG0ASgBJADgAMABoAGwASQBIACsAMQBRAGMAbQBmAGcAPQA9AHwAZQAwADEAZgAzADcAOQBlADkAOAAyAGYAOQAzAGQAOQBhAGMAZQBiAGUANgBlAGEAYQA3ADgANAAzADUAYQAxAGMAMQBhAGIAYQA2ADYAYgAyADkANABjAGYAZQBkAGYAZQAyADUAMQBmADcAZAAwAGQAMgA3ADIANgBmADMANgA='
 [System.Runtime.InteropServices.marshal]::PtrToStringAuto([System.Runtime.InteropServices.marshal]::SecureStringToBSTR($securestring))
+
+#!markdown
+
+## Code Signing 
