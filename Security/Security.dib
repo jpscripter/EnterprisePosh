@@ -83,7 +83,7 @@ $adgroup = New-ADGroup -DisplayName Testgmsa -name testgmsa -GroupScope Global -
 $GMSA = New-ADServiceAccount -name gmsa-test -DNSHostName gmsa-test.Domain.com -PrincipalsAllowedToRetrieveManagedPassword $adgroup.NAME -PassThru
 #Add Computer to AD Group
 
-# Request new token to get Group
+# Request new token to get Group on the server
 KLIST purge -lh 0 -li 0x3e7 purge
 
 Install-ADServiceAccount gmsa-test
