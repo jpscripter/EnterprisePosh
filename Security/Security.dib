@@ -90,7 +90,7 @@ Install-ADServiceAccount gmsa-test
 Test-ADServiceAccount gmsa-test
 
 $action = New-ScheduledTaskAction $env:ComSpec
-$Principle = New-ScheduledTaskPrincipal -UserId  jps\gmsa-test$ -LogonType Password
+$Principle = New-ScheduledTaskPrincipal -UserId  domain\gmsa-test$ -LogonType Password
 $trigger = New-ScheduledTaskTrigger -at 23:00 -Daily
 Register-ScheduledTask test-gmsa -Action $action -Trigger $trigger -Principal $Principle
 
