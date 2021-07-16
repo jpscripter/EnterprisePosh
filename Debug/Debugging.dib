@@ -29,6 +29,19 @@
 
 #!pwsh
 
+$Scriptblock = {
+    $Variable = 'test'
+    try{
+        Write-error "testError" -Erroraction Stop
+    }Catch{
+        Wait-Debugger
+    }
+    Start-UDFSleep 
+}
+invoke-command $Scriptblock 
+
+#!pwsh
+
 ## Configuring VSCode
 
 1) Install OmniSharp and other dependancies 
@@ -65,7 +78,6 @@ For ($Counter = 0; $Counter -lt $Seconds; $Counter++){
 #!pwsh
 
 # Gathering Data From 
-# E:\Repos\Utilities\SysInternals\PSEXEC.exe -s -i cmd
 Set-Location E:\Repos\MMS\EnterprisePosh\Debug
 $FilePath = "E:\RunSpaceData.txt"
 Import-Module .\Module.psm1
@@ -88,13 +100,14 @@ For ($Counter = 0; $Counter -lt $Seconds; $Counter++){
 
 ## Notes
 1) You have to be an admin or the same user to enter the HostProcess 
-1) holds the remote runspace up until you detach
+1) Holds the remote runspace up until you detach
 1) Errors Easily
 1) Integrated consoles are your friend
 
 #!pwsh
 
 # Entering The Runspace
+whoami.exe
 $FilePath = "E:\RunSpaceData.txt"
 $Content = Get-Content -Path $FilePath -Raw
 $RunSpaceData = ConvertFrom-Json -InputObject $content
