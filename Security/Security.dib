@@ -7,7 +7,6 @@
     1) Having poor permissioning on your scripts can lead to edits and secrets being leaked.
 1) Be careful code injection
     1) Be careful with user input in general
-    1) SQL Injection 
     1) injection hunter module (https://devblogs.microsoft.com/powershell/powershell-injection-hunter-security-auditing-for-powershell-scripts/)
     1) Management.Automation.Language.CodeGeneration - Methods to escape common injection attacks
 
@@ -65,10 +64,10 @@ $Secret = Get-Secret -Name Testuser
 #!markdown
 
 ## GO it alone Secrets
-    1) There are a lot of tricks to secure your passwords, tokens and other secrets. 
-    1) Security is never perfect but that does not mean you can do nothing to secure secrets.
-    1) Most Secrets management relies on converting secrets into two or more parts
-    1) Separating usernames from passwords is a good idea. 
+1) There are a lot of tricks to secure your passwords, tokens and other secrets. 
+1) Security is never perfect but that does not mean you can do nothing to secure secrets.
+1) Most Secrets management relies on converting secrets into two or more parts
+1) Separating usernames from passwords is a good idea. 
 
 #!markdown
 
@@ -98,15 +97,15 @@ Register-ScheduledTask test-gmsa -Action $action -Trigger $trigger -Principal $P
 #!markdown
 
 ### DPAPI
-    1) Data Protection API is a good solution for some solutions based on AES encryption and built into windows. 
-        1) User Keys:  %userprofile%\AppData\Roaming\Microsoft\Protect
-        1) Computer Keys: %windir%\system32\microsoft\protect
-    1) DPAPI is easy to use. 
-        1) Browser secrets
-        1) Biometrics data
-        1) Credential Manager
-    1) Breaks the secret into two pieces: The encrypted payload and Key encrypted by the user's cred
-    1) Anyone can decrypt with the user's context
+1) Data Protection API is a good solution for some solutions based on AES encryption and built into windows. 
+    1) User Keys:  %userprofile%\AppData\Roaming\Microsoft\Protect
+    1) Computer Keys: %windir%\system32\microsoft\protect
+1) DPAPI is easy to use. 
+    1) Browser secrets
+    1) Biometrics data
+    1) Credential Manager
+1) Breaks the secret into two pieces: The encrypted payload and Key encrypted by the user's cred
+1) Anyone can decrypt with the user's context
 
 #!pwsh
 
