@@ -27,6 +27,13 @@
     }
 }.invoke()
 
+#!pwsh
+
+## Configuring VSCode
+
+1) Install OmniSharp and other dependancies 
+1) Create launch.json file -> Powershell -> Current File
+
 #!markdown
 
 ## Remote Debugging

@@ -65,7 +65,8 @@ $Secret = Get-Secret -Name Testuser
 ## GO it alone Secrets
     1) There are a lot of tricks to secure your passwords, tokens and other secrets. 
     1) Security is never perfect but that does not mean you can do nothing to secure secrets.
-    1) Separating secrets like usernames from passwords is a good idea. 
+    1) Most Secrets management relies on converting secrets into two or more parts
+    1) Separating usernames from passwords is a good idea. 
 
 
 ### DPAPI
@@ -130,4 +131,7 @@ $securestring = ConvertTo-SecureString -Key $key -String $Payload
 
 #!markdown
 
+Set-ExecutionPolicy AllSigned -Scope Process
 $authenticode = New-SelfSignedCertificate -Subject "CustomSigning" -CertStoreLocation Cert:\CurrentUser\my -Type CodeSigningCert
+Set-AuthenticodeSignature -Certificate $authenticode -FilePath .\SignedFile.ps1
+.\SignedFile.ps1
