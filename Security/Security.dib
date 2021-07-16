@@ -7,7 +7,7 @@
     1) Having poor permissioning on your scripts can lead to edits and secrets being leaked.
 1) Be careful code injection
     1) Be careful with user input in general
-    1) Invoke-Experssion
+    1) SQL Injection 
     1) injection hunter module (https://devblogs.microsoft.com/powershell/powershell-injection-hunter-security-auditing-for-powershell-scripts/)
     1) Management.Automation.Language.CodeGeneration - Methods to escape common injection attacks
 
@@ -19,8 +19,10 @@ $null = $FileBrowser.ShowDialog()
 
 #!pwsh
 
-[Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent("Test'string")
-[Management.Automation.Language.CodeGeneration]::EscapeBlockCommentContent("Test#>string")
+$Userinput = "Output';Echo 'mal';'"
+$code = "Write-Verbose '$Userinput'"
+$code
+[Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent($code)
 
 #!markdown
 
@@ -39,8 +41,7 @@ Powershell.exe -command " Invoke-Command {([void]('$username : $Password'))};Sta
 $username = 'Administrator'
 $Password = 'P@ssw0rd'
 $Cred = [PScredential]::new($username, (ConvertTo-SecureString -String $Password -AsPlainText -Force))
-Get-WinEvent -LogName Microsoft-Windows-PowerShell/Operational -MaxEvents 20 | where {$PSItem.message -like '*P@ss*'}   
-Get-WinEvent -LogName 'Windows PowerShell' -MaxEvents 20 | where {$PSItem.message -like '*P@ss*'}   
+Get-WinEvent -LogName 'Windows PowerShell' -MaxEvents 20 | where {$PSItem.message -match 'P[a@]ss'}   
 
 #EventVwr.msc
 # 800
@@ -56,8 +57,9 @@ Get-WinEvent -LogName 'Windows PowerShell' -MaxEvents 20 | where {$PSItem.messag
 # Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser -force
 # Register-SecretVault -Name LocalStore -ModuleName Microsoft.PowerShell.SecretStore  -DefaultVault
 # Reset-SecretStore
+# Set-SecretStoreConfiguration
 $Password = 'P@ssw0rd'
-Set-Secret -Name TestUser -Secret $Password
+Set-Secret -Name TestUser -Secret $Password 
 $Secret = Get-Secret -Name Testuser
 
 #!markdown
@@ -77,7 +79,7 @@ $Secret = Get-Secret -Name Testuser
         1) Browser secrets
         1) Biometrics data
         1) Credential Manager
-    1) Breaks the secret into two peices: The encrypted payload and the user's password
+    1) Breaks the secret into two pieces: The encrypted payload and Key encrypted by the user's cred
     1) Anyone can decrypt with the user's context
 
 #!pwsh
