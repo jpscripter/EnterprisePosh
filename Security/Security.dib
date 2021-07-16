@@ -70,6 +70,32 @@ $Secret = Get-Secret -Name Testuser
     1) Most Secrets management relies on converting secrets into two or more parts
     1) Separating usernames from passwords is a good idea. 
 
+#!markdown
+
+### Group Managed Service accounts
+1) GMSA accounts can run scheduled task if configured with powershell
+1) Account can't get locked out
+1) Permissions are isolated from local system
+1) https://www.ephingadmin.com/PasswordlessPowerShell/
+
+#!pwsh
+
+$adgroup = New-ADGroup -DisplayName Testgmsa -name testgmsa -GroupScope Global -PassThru
+$GMSA = New-ADServiceAccount -name gmsa-test -DNSHostName gmsa-test.Domain.com -PrincipalsAllowedToRetrieveManagedPassword $adgroup.NAME -PassThru
+#Add Computer to AD Group
+
+# Request new token to get Group
+KLIST purge -lh 0 -li 0x3e7 purge
+
+Install-ADServiceAccount gmsa-test
+Test-ADServiceAccount gmsa-test
+
+$action = New-ScheduledTaskAction $env:ComSpec
+$Principle = New-ScheduledTaskPrincipal -UserId  jps\gmsa-test$ -LogonType Password
+$trigger = New-ScheduledTaskTrigger -at 23:00 -Daily
+Register-ScheduledTask test-gmsa -Action $action -Trigger $trigger -Principal $Principle
+
+#!markdown
 
 ### DPAPI
     1) Data Protection API is a good solution for some solutions based on AES encryption and built into windows. 
