@@ -19,7 +19,7 @@
     
     wait-debugger
     :LoopName For ($Counter = 0; $Counter -LT $loops; $Counter++){
-        If ($Counter -eq $BreakPoint){
+        If ($Counter = $BreakPoint){
             Break LoopName
         }
         "Sleeping $Counter"

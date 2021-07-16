@@ -1,2 +1,4 @@
+
+$Variable = 1
 Write-output -InputObject 'Test'
-Write-output "test2"
+Write-output "$Variable"
