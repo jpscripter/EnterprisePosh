@@ -157,7 +157,7 @@ $securestring = ConvertTo-SecureString -Key $key -String $Payload
 1) Not all tools supports scripts being signed.
 1) Needs to be partnered with policy to enforce execution policy.
 
-#!markdown
+#!pwsh
 
 Set-ExecutionPolicy AllSigned -Scope Process
 $authenticode = New-SelfSignedCertificate -Subject "CustomSigning" -CertStoreLocation Cert:\CurrentUser\my -Type CodeSigningCert
