@@ -113,7 +113,7 @@ Register-ScheduledTask test-gmsa -Action $action -Trigger $trigger -Principal $P
 #Encrypt DPAPI
 
 $secure = ConvertTo-SecureString -String ‘Password123' -AsPlainText -Force 
-$SecureString  = ConvertFrom-SecureString -SecureString $secure
+$SecureString = ConvertFrom-SecureString -SecureString $secure
 $SecureString
 
 #!pwsh
